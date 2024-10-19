@@ -31,7 +31,7 @@ init with {:
 scan with {: return lexer.next_token(); :};
 
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, UMINUS, TIMES, LPAREN, RPAREN;
+terminal            SEMI, PLUS, MINUS, UMINUS, TIMES, SPLIT, LPAREN, RPAREN;
 terminal Integer    NUMBER;        // our scanner provides numbers as integers
 
 /* Non terminals */
@@ -40,7 +40,7 @@ non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /* Precedences */
 precedence left PLUS, MINUS;
-precedence left TIMES;
+precedence left TIMES, SPLIT;
 precedence left UMINUS;
 
 /* The grammar rules */
@@ -50,7 +50,9 @@ expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
             
 expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;        :}
              | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;        :}
-             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;        :}
+             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;  	  :}
+			 | expr:e1 SPLIT expr:e2		{: RESULT = e1/e2;	      :}
+             
              | MINUS expr:e                 {: RESULT = -e;           :}
              %prec UMINUS
              | LPAREN expr:e RPAREN	         {: RESULT = e;           :}
