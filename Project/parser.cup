@@ -31,31 +31,115 @@ init with {:
 scan with {: return lexer.next_token(); :};
 
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, UMINUS, TIMES, SPLIT, LPAREN, RPAREN;
-terminal Integer    NUMBER;        // our scanner provides numbers as integers
+terminal SEMI, PLUS, MINUS, UMINUS, TIMES, SPLIT;
+terminal LPAREN, RPAREN, LBRACE, RBRACE, LSQBRAKE, RSQBRAKE;
+terminal COMMA, AND, OR, EQUAL, NOTEQUAL, EQUALEQUAL, LESSEQUAL, GREATEQUAL, LARROW, RARROW;
+terminal ANDAND, OROR, IF, ELSE, WHILE, RETURN, CIN, COUT, READ, WRITE;
+terminal TRUE, FALSE, VOID, INT, BOOL, ID, NUMBER;
+terminal STRINGLITERAL;  // Added STRINGLITERAL terminal
 
 /* Non terminals */
-non terminal            expr_list;
-non terminal Integer    expr;      // used to store evaluated subexpressions
+non terminal program, stmt, stmt_list, expr_list, varDecl, fnDecl, parameters, formalDecl, formalsList, block, decl_list;
+non terminal Integer expr;  // used to store evaluated subexpressions
+non terminal type;  // Declaration of the 'type' non-terminal
+non terminal subscriptExpr; // Declaration of the 'subscriptExpr' non-terminal
+non terminal fnCallStmt;
+non terminal actualList;
 
 /* Precedences */
+precedence left OR, OROR;
+precedence left AND, ANDAND;
+precedence left EQUALEQUAL, NOTEQUAL, LESSEQUAL, GREATEQUAL, LARROW, RARROW;
 precedence left PLUS, MINUS;
 precedence left TIMES, SPLIT;
 precedence left UMINUS;
 
 /* The grammar rules */
-expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
-            | expr:e SEMI                   {: System.out.println(e); :}
-            ;
-            
-expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;        :}
-             | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;        :}
-             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;  	  :}
-			 | expr:e1 SPLIT expr:e2		{: RESULT = e1/e2;	      :}
-             
-             | MINUS expr:e                 {: RESULT = -e;           :}
-             %prec UMINUS
-             | LPAREN expr:e RPAREN	         {: RESULT = e;           :}
-             | NUMBER:n	                     {: RESULT = n;           :}
+program ::= program varDecl
+          | program fnDecl
+          | /* empty */
+          ;
+
+varDecl ::= type ID SEMI
+          | type ID LSQBRAKE NUMBER RSQBRAKE SEMI
+          ;
+
+type ::= INT
+       | BOOL
+       | VOID
+       ;
+
+fnDecl ::= type ID parameters block
+         ;
+
+parameters ::= LPAREN RPAREN
+             | LPAREN formalsList RPAREN
              ;
-       
+
+formalsList ::= formalDecl
+              | formalsList COMMA formalDecl
+              ;
+
+formalDecl ::= type ID
+             ;
+
+block ::= LBRACE decl_list stmt_list RBRACE
+        ;
+
+decl_list ::= decl_list varDecl
+            | /* empty */
+            ;
+
+stmt_list ::= stmt_list stmt
+            | /* empty */
+            ;
+
+/* Statement grammar */
+stmt ::= CIN READ ID SEMI
+       | CIN READ ID LSQBRAKE expr RSQBRAKE SEMI
+       | COUT WRITE expr SEMI
+       | ID EQUAL expr SEMI
+       | subscriptExpr EQUAL expr SEMI
+       | IF LPAREN expr RPAREN block
+       | IF LPAREN expr RPAREN block ELSE block
+       | WHILE LPAREN expr RPAREN block
+       | RETURN expr SEMI
+       | RETURN SEMI
+       | fnCallStmt SEMI
+       ;
+
+/* Expression grammar */
+expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
+       | expr:e1 MINUS expr:e2            {: RESULT = e1 - e2; :}
+       | expr:e1 TIMES expr:e2            {: RESULT = e1 * e2; :}
+       | expr:e1 SPLIT expr:e2            {: RESULT = e1 / e2; :}
+       | expr:e1 AND expr:e2              {: RESULT = e1 & e2; :}
+       | expr:e1 OR expr:e2               {: RESULT = e1 | e2; :}
+       | expr:e1 ANDAND expr:e2           {: RESULT = (e1 != 0 && e2 != 0) ? 1 : 0; :}
+       | expr:e1 OROR expr:e2             {: RESULT = (e1 != 0 || e2 != 0) ? 1 : 0; :}
+       | expr:e1 EQUALEQUAL expr:e2       {: RESULT = (e1 == e2) ? 1 : 0; :}
+       | expr:e1 NOTEQUAL expr:e2         {: RESULT = (e1 != e2) ? 1 : 0; :}
+       | expr:e1 LESSEQUAL expr:e2        {: RESULT = (e1 <= e2) ? 1 : 0; :}
+       | expr:e1 GREATEQUAL expr:e2       {: RESULT = (e1 >= e2) ? 1 : 0; :}
+       | expr:e1 LARROW expr:e2           {: RESULT = (e1 < e2) ? 1 : 0; :}
+       | expr:e1 RARROW expr:e2           {: RESULT = (e1 > e2) ? 1 : 0; :}
+       | MINUS expr:e                     {: RESULT = -e; :} %prec UMINUS
+       | LPAREN expr:e RPAREN             {: RESULT = e; :}
+       | NUMBER:n                        {: RESULT = ((Integer)n).intValue(); :}  // Explicit cast to Integer
+       | TRUE                            {: RESULT = 1; :}
+       | FALSE                           {: RESULT = 0; :}
+       | ID
+       ;
+
+
+/* Subscript and function call grammar */
+subscriptExpr ::= ID LSQBRAKE expr RSQBRAKE
+                ;
+
+fnCallStmt ::= ID LPAREN RPAREN
+             | ID LPAREN actualList RPAREN
+             ;
+
+actualList ::= expr
+             | actualList COMMA expr
+             ;
