@@ -1,4 +1,1 @@
-INT NUM = 50;
-INT NR2 = 20;
-
-NUM+NR2;
+27+15;
