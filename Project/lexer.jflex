@@ -94,7 +94,7 @@ ident = ([:jletter:] | "_" ) ([:jletterdigit:] | [:jletter:] | "_" )*
   "+"          { return symbolFactory.newSymbol("PLUS", PLUS); }
   "-"          { return symbolFactory.newSymbol("MINUS", MINUS); }
   "*"          { return symbolFactory.newSymbol("TIMES", TIMES); }
-  "/"          { return symbolFactory.newSymbol("SPLIT", SPLIT); }
+  "/"          { return symbolFactory.newSymbol("DIVIDE", DIVIDE); }
   
   "&"          { return symbolFactory.newSymbol("AND", AND); }
   "|"          { return symbolFactory.newSymbol("OR", OR); }
@@ -112,10 +112,10 @@ ident = ([:jletter:] | "_" ) ([:jletterdigit:] | [:jletter:] | "_" )*
   "["          { return symbolFactory.newSymbol("LSQBRAKE", LSQBRAKE); }
   "]"          { return symbolFactory.newSymbol("RSQBRAKE", RSQBRAKE); } 
   
-  "<"          { return symbolFactory.newSymbol("LARROW", LARROW); }
-  ">"          { return symbolFactory.newSymbol("RARROW", RARROW); } 
+  "<"          { return symbolFactory.newSymbol("LESSER", LESSER); }
+  ">"          { return symbolFactory.newSymbol("GREATER", GREATER); } 
   
-  "="          { return symbolFactory.newSymbol("EQUAL", EQUAL); }  
+  "="          { return symbolFactory.newSymbol("ASSIGN", ASSIGN); }  
   "=="          { return symbolFactory.newSymbol("EQUALEQUAL", EQUALEQUAL); } 
   "!="          { return symbolFactory.newSymbol("NOTEQUAL", NOTEQUAL); } 
   "<="          { return symbolFactory.newSymbol("LESSEQUAL", LESSEQUAL); } 

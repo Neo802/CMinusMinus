@@ -31,9 +31,9 @@ init with {:
 scan with {: return lexer.next_token(); :};
 
 /* Terminals (tokens returned by the scanner). */
-terminal SEMI, PLUS, MINUS, UMINUS, TIMES, SPLIT;
+terminal SEMI, PLUS, MINUS, UMINUS, TIMES, DIVIDE;
 terminal LPAREN, RPAREN, LBRACE, RBRACE, LSQBRAKE, RSQBRAKE;
-terminal COMMA, AND, OR, EQUAL, NOTEQUAL, EQUALEQUAL, LESSEQUAL, GREATEQUAL, LARROW, RARROW;
+terminal COMMA, AND, OR, ASSIGN, NOTEQUAL, EQUALEQUAL, LESSEQUAL, GREATEQUAL, LESSER, GREATER;
 terminal ANDAND, OROR, IF, ELSE, WHILE, RETURN, CIN, COUT, READ, WRITE;
 terminal TRUE, FALSE, VOID, INT, BOOL, NUMBER;
 terminal String STRINGLITERAL;  // Added STRINGLITERAL terminal
@@ -50,12 +50,11 @@ non terminal actualList;
 /* Precedences */
 precedence left OR, OROR;
 precedence left AND, ANDAND;
-precedence left EQUALEQUAL, NOTEQUAL, LESSEQUAL, GREATEQUAL, LARROW, RARROW;
+precedence left EQUALEQUAL, NOTEQUAL, LESSEQUAL, GREATEQUAL, LESSER, GREATER;
 precedence left PLUS, MINUS;
-precedence left TIMES, SPLIT;
+precedence left TIMES, DIVIDE;
 precedence left UMINUS;
-
-/*         
+        
 // The grammar rules
 program ::= program varDecl
           | program fnDecl
@@ -100,8 +99,8 @@ stmt_list ::= stmt_list stmt
 stmt ::= CIN READ ID SEMI
        | CIN READ ID LSQBRAKE expr RSQBRAKE SEMI
        | COUT WRITE expr SEMI
-       | ID EQUAL expr SEMI
-       | subscriptExpr EQUAL expr SEMI
+       | ID ASSIGN expr SEMI
+       | subscriptExpr ASSIGN expr SEMI
        | IF LPAREN expr RPAREN block
        | IF LPAREN expr RPAREN block ELSE block
        | WHILE LPAREN expr RPAREN block
@@ -109,7 +108,6 @@ stmt ::= CIN READ ID SEMI
        | RETURN SEMI
        | fnCallStmt SEMI
        ;            
-*/
 
 /* The grammar rules */
 expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
@@ -120,7 +118,7 @@ expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
 expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
        | expr:e1 MINUS expr:e2            {: RESULT = e1 - e2; :}
        | expr:e1 TIMES expr:e2            {: RESULT = e1 * e2; :}
-       | expr:e1 SPLIT expr:e2            {: RESULT = e1 / e2; :}
+       | expr:e1 DIVIDE expr:e2            {: RESULT = e1 / e2; :}
        | expr:e1 AND expr:e2              {: RESULT = e1 & e2; :}
        | expr:e1 OR expr:e2               {: RESULT = e1 | e2; :}
        | expr:e1 ANDAND expr:e2           {: RESULT = (e1 != 0 && e2 != 0) ? 1 : 0; :}
@@ -129,8 +127,8 @@ expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
        | expr:e1 NOTEQUAL expr:e2         {: RESULT = (e1 != e2) ? 1 : 0; :}
        | expr:e1 LESSEQUAL expr:e2        {: RESULT = (e1 <= e2) ? 1 : 0; :}
        | expr:e1 GREATEQUAL expr:e2       {: RESULT = (e1 >= e2) ? 1 : 0; :}
-       | expr:e1 LARROW expr:e2           {: RESULT = (e1 < e2) ? 1 : 0; :}
-       | expr:e1 RARROW expr:e2           {: RESULT = (e1 > e2) ? 1 : 0; :}
+       | expr:e1 LESSER expr:e2           {: RESULT = (e1 < e2) ? 1 : 0; :}
+       | expr:e1 GREATER expr:e2           {: RESULT = (e1 > e2) ? 1 : 0; :}
        | MINUS expr:e                     {: RESULT = -e; :} %prec UMINUS
        | LPAREN expr:e RPAREN             {: RESULT = e; :}
        | NUMBER:n                        {: RESULT = ((Integer)n).intValue(); :}  // Explicit cast to Integer

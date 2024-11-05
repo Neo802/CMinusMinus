@@ -1,3 +1,7 @@
-"aab ca";
-ab cd 982
-if cin cout + -
+int main(){
+	int a = 10;
+	int b = 12;
+	int c = 0;
+	
+	c = a + b;
+}
