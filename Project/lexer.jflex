@@ -63,7 +63,18 @@ Number     = [0-9]+
 Identifier = [a-zA-Z_][a-zA-Z0-9_]*
 StringChar = ([ \t\f]|[ \n\t]|\w)
 Quotes = \"
-StringLiteral = {Quotes}[a-zA-Z0-9_ ]*{Quotes}
+StringLiteral = {Quotes}([^\"\\\n]|\\[nrtbfv\\\"']|\\\\)*{Quotes}
+
+//{Quotes}[a-zA-Z0-9_ &!#:\"\'\/\\]*{Quotes} // v0.13
+
+/*
+\": Matches the starting and ending double quotes.
+([^\"\\\n]: Matches any character except a double quote, backslash, or newline (valid non-escaped characters).
+|\\[nrtbfv\\\"']: Matches valid escape sequences such as \n, \t, \b, \r, \f, \\, and \".
+|\\\\: Matches a double backslash (\\).
+)*: Repeats the pattern to allow multiple characters in the string.
+*/
+
 
 /* comments */
 
@@ -71,9 +82,6 @@ Comment = {TraditionalComment} | {EndOfLineComment}
 TraditionalComment = "/*" {CommentContent} \*+ "/"
 EndOfLineComment = "//" [^\r\n]* {Newline}
 CommentContent = ( [^*] | \*+[^*/] )*
-
-ident = ([:jletter:] | "_" ) ([:jletterdigit:] | [:jletter:] | "_" )*
-
 
 %eofval{
     return symbolFactory.newSymbol("EOF",sym.EOF);

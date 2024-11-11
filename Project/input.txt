@@ -1,7 +1,18 @@
-int main(){
-	int a = 10;
-	int b = 12;
-	int c = 0;
-	
-	c = a + b;
-}
+""
+"&!#"
+"use \n to denote a newline character"
+"include a quote like this \" and a backslash like this \\"
+"unterminated
+"also unterminated \"
+"backslash followed by space: \ is not allowed"
+"bad escaped character: \a AND not terminated
+
+1230
+
+int a = 13;
+
+//this is a comment too
+#and so is this
+
+123021
+214123

@@ -36,6 +36,7 @@ terminal LPAREN, RPAREN, LBRACE, RBRACE, LSQBRAKE, RSQBRAKE;
 terminal COMMA, AND, OR, ASSIGN, NOTEQUAL, EQUALEQUAL, LESSEQUAL, GREATEQUAL, LESSER, GREATER;
 terminal ANDAND, OROR, IF, ELSE, WHILE, RETURN, CIN, COUT, READ, WRITE;
 terminal TRUE, FALSE, VOID, INT, BOOL, NUMBER;
+terminal Integer INTLITERAL;
 terminal String STRINGLITERAL;  // Added STRINGLITERAL terminal
 terminal String ID;
 
@@ -44,7 +45,7 @@ non terminal program, stmt, stmt_list, expr_list, varDecl, fnDecl, parameters, f
 non terminal Integer expr;  // used to store evaluated subexpressions
 non terminal type;  // Declaration of the 'type' non-terminal
 non terminal subscriptExpr; // Declaration of the 'subscriptExpr' non-terminal
-non terminal fnCallStmt;
+non terminal fnCallStmt, fnCallExpr, atom, id;
 non terminal actualList;
 
 /* Precedences */
@@ -136,11 +137,20 @@ expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
        | FALSE                           {: RESULT = 0; :}
        | ID
        ;
-       
+             
 /* Subscript and function call grammar */
-subscriptExpr ::= ID LSQBRAKE expr RSQBRAKE
-                ;
+atom		::=	INTLITERAL
+			|	STRINGLITERAL
+			|	TRUE
+			|	FALSE
+			|	LPAREN	actualList	RPAREN
+			|	subscriptExpr
+			|	id;
                 
+fnCallExpr ::= ID LPAREN RPAREN
+             | ID LPAREN actualList RPAREN
+             ;
+             
 fnCallStmt ::= ID LPAREN RPAREN
              | ID LPAREN actualList RPAREN
              ;
@@ -148,4 +158,8 @@ fnCallStmt ::= ID LPAREN RPAREN
 actualList ::= expr
              | actualList COMMA expr
              ;
+subscriptExpr ::= ID LSQBRAKE expr RSQBRAKE
+                ;
+                
+id			::= ID;
        
