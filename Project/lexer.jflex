@@ -80,7 +80,7 @@ StringLiteral = {Quotes}([^\"\\\n]|\\[nrtbfv\\\"']|\\\\)*{Quotes}
 
 Comment = {TraditionalComment} | {EndOfLineComment}
 TraditionalComment = "/*" {CommentContent} \*+ "/"
-EndOfLineComment = "//" [^\r\n]* {Newline}
+EndOfLineComment = ("//"|"#")[^\r\n]*{Newline} // I solved this!
 CommentContent = ( [^*] | \*+[^*/] )*
 
 %eofval{
@@ -91,12 +91,17 @@ CommentContent = ( [^*] | \*+[^*/] )*
 
 %%  
 
+/*
+// Version before v0.21
+  "//"         { yybegin(COMMENT); }
+  "#"          { yybegin(COMMENT); }
+*/
+
 /* Whitespace and comments */
 /* Keywords */
 <YYINITIAL> {
   {Whitespace} { }   
-  "//"         { yybegin(COMMENT); }
-  "#"          { yybegin(COMMENT); }
+  {EndOfLineComment}	{	}
      
   ";"          { return symbolFactory.newSymbol("SEMI", SEMI); }
   "+"          { return symbolFactory.newSymbol("PLUS", PLUS); }
