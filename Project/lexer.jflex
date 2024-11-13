@@ -146,6 +146,10 @@ CommentContent = ( [^*] | \*+[^*/] )*
   "return"     { return symbolFactory.newSymbol("RETURN", sym.RETURN); }
   "cin"        { return symbolFactory.newSymbol("CIN", sym.CIN); }
   "cout"       { return symbolFactory.newSymbol("COUT", sym.COUT); }
+  
+  "<<"        { return symbolFactory.newSymbol("WRITE", sym.WRITE); }
+  ">>"       { return symbolFactory.newSymbol("READ", sym.READ); }
+  
   {StringLiteral} { return symbol("STRINGLITERAL", sym.STRINGLITERAL, yytext()); }
   {Number}     { return symbolFactory.newSymbol("NUMBER", NUMBER, Integer.parseInt(yytext())); }
   {Identifier} { return symbol("ID", sym.ID, yytext()); }

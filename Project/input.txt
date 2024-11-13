@@ -1,7 +1,6 @@
 int main(){
 	int a;
 	a = 13;
+	
+	cout << a;
 }
-
-//Here is a comment
-#this is one too

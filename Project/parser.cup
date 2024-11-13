@@ -57,57 +57,57 @@ precedence left TIMES, DIVIDE;
 precedence left UMINUS;
         
 // The grammar rules
-program ::= program varDecl
-          | program fnDecl
+program ::= program varDecl								{: System.out.println("Program 1(varDecl)"); :}
+          | program fnDecl								{: System.out.println("Program 2(fnDecl)"); :}
           | // empty
           ;
           
-varDecl ::= type ID SEMI
-          | type ID LSQBRAKE NUMBER RSQBRAKE SEMI
+varDecl ::= type ID SEMI								{: System.out.println("varDecl 1"); :}
+          | type ID LSQBRAKE NUMBER RSQBRAKE SEMI		{: System.out.println("varDecl 2"); :}
           ;
           
-type ::= INT
-       | BOOL
-       | VOID
+type ::= INT											{: System.out.println("type 1(INT value)"); :}
+       | BOOL											{: System.out.println("type 2(BOOL value)"); :}
+       | VOID											{: System.out.println("type 3(VOID value)"); :}
        ;
        
-fnDecl ::= type ID parameters block
+fnDecl ::= type ID parameters block						{: System.out.println("fnDecl 1"); :}
          ;
          
-parameters ::= LPAREN RPAREN
-             | LPAREN formalsList RPAREN
+parameters ::= LPAREN RPAREN							{: System.out.println("parameters 1"); :}
+             | LPAREN formalsList RPAREN				{: System.out.println("parameters 2"); :}
              ;
              
-formalsList ::= formalDecl
-              | formalsList COMMA formalDecl
+formalsList ::= formalDecl								{: System.out.println("formalsList 1"); :}
+              | formalsList COMMA formalDecl			{: System.out.println("formalsList 2"); :}
               ;
               
-formalDecl ::= type ID
+formalDecl ::= type ID									{: System.out.println("formalDecl 1"); :}
              ;
              
-block ::= LBRACE decl_list stmt_list RBRACE
+block ::= LBRACE decl_list stmt_list RBRACE				{: System.out.println("block 1"); :}
         ;
         
-decl_list ::= decl_list varDecl
+decl_list ::= decl_list varDecl							{: System.out.println("decl_list 1"); :}
             | // empty
             ;
             
-stmt_list ::= stmt_list stmt
+stmt_list ::= stmt_list stmt							{: System.out.println("stmt_list 1"); :}
             | // empty
             ;
             
 // Statement grammar 
-stmt ::= CIN READ ID SEMI
-       | CIN READ ID LSQBRAKE expr RSQBRAKE SEMI
-       | COUT WRITE expr SEMI
-       | ID ASSIGN expr SEMI
-       | subscriptExpr ASSIGN expr SEMI
-       | IF LPAREN expr RPAREN block
-       | IF LPAREN expr RPAREN block ELSE block
-       | WHILE LPAREN expr RPAREN block
-       | RETURN expr SEMI
-       | RETURN SEMI
-       | fnCallStmt SEMI
+stmt ::= CIN READ ID SEMI								{: System.out.println("stmt 1"); :}
+       | CIN READ ID LSQBRAKE expr:e RSQBRAKE SEMI		{: System.out.println("stmt 2 reads " + e); :}
+       | COUT WRITE expr:e SEMI							{: System.out.println("stmt 3 writes " + e); :}
+       | ID ASSIGN expr:e SEMI							{: System.out.println("stmt 4 expr=" + e); :}
+       | subscriptExpr ASSIGN expr:e SEMI				{: System.out.println("stmt 5"); :}
+       | IF LPAREN expr:e RPAREN block					{: System.out.println("stmt 6"); :}
+       | IF LPAREN expr:e RPAREN block ELSE block		{: System.out.println("stmt 7"); :}
+       | WHILE LPAREN expr:e RPAREN block				{: System.out.println("stmt 8"); :}
+       | RETURN expr:e SEMI								{: System.out.println("stmt 9"); :}
+       | RETURN SEMI									{: System.out.println("stmt 10"); :}
+       | fnCallStmt SEMI								{: System.out.println("stmt 11"); :}
        ;            
 
 expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
@@ -138,27 +138,30 @@ expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
        ;
              
 /* Subscript and function call grammar */
-atom		::=	INTLITERAL
-			|	STRINGLITERAL
-			|	TRUE
-			|	FALSE
-			|	LPAREN	actualList	RPAREN
-			|	subscriptExpr
-			|	id;
-                
-fnCallExpr ::= ID LPAREN RPAREN
-             | ID LPAREN actualList RPAREN
+atom		::=	INTLITERAL							{: System.out.println("atom 1"); :}
+			|	STRINGLITERAL						{: System.out.println("atom 2"); :}
+			|	TRUE								{: System.out.println("atom 3"); :}
+			|	FALSE								{: System.out.println("atom 4"); :}
+			|	LPAREN	actualList	RPAREN			{: System.out.println("atom 5"); :}
+			|	subscriptExpr						{: System.out.println("atom 6"); :}
+			|	id									{: System.out.println("atom 7"); :}
+            ;
+            
+fnCallExpr ::= ID LPAREN RPAREN						{: System.out.println("fnCallExpr 1"); :}
+             | ID LPAREN actualList RPAREN			{: System.out.println("fnCallExpr 2"); :}
              ;
              
-fnCallStmt ::= ID LPAREN RPAREN
-             | ID LPAREN actualList RPAREN
+fnCallStmt ::= ID LPAREN RPAREN						{: System.out.println("fnCallStmt 1"); :}
+             | ID LPAREN actualList RPAREN			{: System.out.println("fnCallStmt 2"); :}
              ;
              
-actualList ::= expr
-             | actualList COMMA expr
+actualList ::= expr									{: System.out.println("actualList 1"); :}
+             | actualList COMMA expr				{: System.out.println("actualList 2"); :}
              ;
-subscriptExpr ::= ID LSQBRAKE expr RSQBRAKE
+             
+subscriptExpr ::= ID LSQBRAKE expr RSQBRAKE			{: System.out.println("subscriptExpr 1"); :}
                 ;
                 
-id			::= ID;
+id			::= ID									{: System.out.println("id 1"); :}
+			;
        
