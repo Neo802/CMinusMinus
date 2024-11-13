@@ -80,7 +80,7 @@ StringLiteral = {Quotes}([^\"\\\n]|\\[nrtbfv\\\"']|\\\\)*{Quotes}
 
 Comment = {TraditionalComment} | {EndOfLineComment}
 TraditionalComment = "/*" {CommentContent} \*+ "/"
-EndOfLineComment = ("//"|"#")[^\r\n]*{Newline} // I solved this!
+EndOfLineComment = ("//"|"\#")[^\r\n]*{Newline} // I solved this!(Partially)
 CommentContent = ( [^*] | \*+[^*/] )*
 
 %eofval{

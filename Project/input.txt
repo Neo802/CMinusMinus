@@ -1,21 +1,7 @@
-""
-"&!#"
-"use \n to denote a newline character"
-"include a quote like this \" and a backslash like this \\"
-"unterminated
-"also unterminated \"
-"backslash followed by space: \ is not allowed"
-"bad escaped character: \a AND not terminated
+int main(){
+	int a;
+	a = 13;
+}
 
-1230
-
-int a = 13;
-
-//this is a comment too
-// and so is this
-
-# and so is this too
-#and so is this
-
-123021
-214123
+//Here is a comment
+#this is one too
