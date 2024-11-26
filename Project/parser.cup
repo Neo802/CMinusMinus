@@ -35,8 +35,8 @@ terminal SEMI, PLUS, MINUS, UMINUS, TIMES, DIVIDE;
 terminal LPAREN, RPAREN, LBRACE, RBRACE, LSQBRAKE, RSQBRAKE;
 terminal COMMA, AND, OR, ASSIGN, NOTEQUAL, EQUALEQUAL, LESSEQUAL, GREATEQUAL, LESSER, GREATER;
 terminal ANDAND, OROR, IF, ELSE, WHILE, RETURN, CIN, COUT, READ, WRITE;
-terminal TRUE, FALSE, VOID, INT, BOOL, NUMBER;
-terminal Integer INTLITERAL;
+terminal TRUE, FALSE, VOID, INT, BOOL;
+terminal Integer INTLITERAL, NUMBER;
 terminal String STRINGLITERAL;  // Added STRINGLITERAL terminal
 terminal String ID;
 
@@ -131,10 +131,10 @@ expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
        | expr:e1 GREATER expr:e2           {: RESULT = (e1 > e2) ? 1 : 0; :}
        | MINUS expr:e                     {: RESULT = -e; :} %prec UMINUS
        | LPAREN expr:e RPAREN             {: RESULT = e; :}
-       | NUMBER:n                        {: RESULT = ((Integer)n).intValue(); :}  // Explicit cast to Integer
+       | NUMBER:n                        {: RESULT = n; :}  // ((Integer)n).intValue(); Explicit cast to Integer
        | TRUE                            {: RESULT = 1; :}
        | FALSE                           {: RESULT = 0; :}
-       | ID
+       | ID								{: RESULT = 0;	:}
        ;
              
 /* Subscript and function call grammar */

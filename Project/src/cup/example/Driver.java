@@ -10,8 +10,8 @@ class Driver {
 
 	public static void main(String[] args) throws Exception {
 		Parser parser = new Parser();
-		//parser.debug_parse();
-		parser.parse();
+		parser.debug_parse();
+		//parser.parse();
 		
 		/*
 		ComplexSymbolFactory f = new ComplexSymbolFactory();
@@ -28,7 +28,7 @@ class Driver {
 		  while ((currentSymbol = lexer.next_token()).sym != sym.EOF) {
 			  System.out.println("currentSymbol == " + currentSymbol);
 		  }
-		  */
+		*/  
 	}
 	
 }
