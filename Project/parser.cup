@@ -5,6 +5,9 @@
 
 package cup.example;
 
+import classes.Sum;
+import classes.TreeNode;
+
 import java_cup.runtime.*;
 import cup.example.Lexer;
 import java.io.IOException;
@@ -12,7 +15,11 @@ import java.io.File;
 import java.io.FileInputStream;
 
 parser code {:
-  protected Lexer lexer;
+  	protected Lexer lexer;
+  	protected TreeNode parseTreeRoot = null;
+	public TreeNode getParseTree(){
+		return parseTreeRoot;
+	}
 :}
 
 /* define how to connect to the scanner! */
@@ -41,29 +48,60 @@ terminal String STRINGLITERAL;  // Added STRINGLITERAL terminal
 terminal String ID;
 
 /* Non terminals */
-non terminal program, stmt, stmt_list, expr_list, varDecl, fnDecl, parameters, formalDecl, formalsList, block, decl_list;
+non terminal TreeNode program;
+non terminal TreeNode stmt;
+non terminal TreeNode stmt_list;
+non terminal TreeNode expr_list;
+non terminal TreeNode varDecl;
+non terminal TreeNode fnDecl;
+non terminal TreeNode parameters;
+non terminal TreeNode formalDecl;
+non terminal TreeNode formalsList;
+non terminal TreeNode block;
+non terminal TreeNode decl_list;
+
 non terminal Integer expr;  // used to store evaluated subexpressions
-non terminal type;  // Declaration of the 'type' non-terminal
-non terminal subscriptExpr; // Declaration of the 'subscriptExpr' non-terminal
-non terminal fnCallStmt, fnCallExpr, atom, id;
-non terminal actualList;
+
+non terminal TreeNode type;  // Declaration of the 'type' non-terminal
+non terminal TreeNode subscriptExpr; // Declaration of the 'subscriptExpr' non-terminal
+non terminal TreeNode fnCallStmt;
+non terminal TreeNode fnCallExpr;
+non terminal TreeNode atom;
+non terminal TreeNode id;
+non terminal TreeNode actualList;
 
 /* Precedences */
 precedence left OR, OROR;
 precedence left AND, ANDAND;
 precedence left EQUALEQUAL, NOTEQUAL, LESSEQUAL, GREATEQUAL, LESSER, GREATER;
-precedence left PLUS, MINUS;
+precedence left PLUS, MINUS;	
 precedence left TIMES, DIVIDE;
 precedence left UMINUS;
         
 // The grammar rules
-program ::= program varDecl								{: System.out.println("Program 1(varDecl)"); :}
-          | program fnDecl								{: System.out.println("Program 2(fnDecl)"); :}
-          | // empty
+program ::= program:p varDecl:vd				{: 													
+													p.addChild(vd);													 
+													RESULT = p;
+												:}
+  | program:p fnDecl:fd							{:													
+													p.addChild(fd);													 
+													RESULT = p;
+												:}
+  | 											{:
+													parseTreeRoot = new TreeNode("Program");
+													RESULT = parseTreeRoot;  
+												:}
           ;
           
-varDecl ::= type ID SEMI								{: System.out.println("varDecl 1"); :}
-          | type ID LSQBRAKE NUMBER RSQBRAKE SEMI		{: System.out.println("varDecl 2"); :}
+varDecl ::= type:t ID:i SEMI					{:
+													TreeNode result = new TreeNode("VarDecl - " + i);
+													result.addChild(t);
+													RESULT = result; 
+											    :}
+          | type:t ID:i LSQBRAKE NUMBER:n RSQBRAKE SEMI		
+          										{: 
+													System.out.println("varDecl 2"); 
+												:}
           ;
           
 type ::= INT											{: System.out.println("type 1(INT value)"); :}
@@ -115,7 +153,7 @@ expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
             ;
             
 /* Expression grammar */
-expr ::= expr:e1 PLUS expr:e2             {: RESULT = e1 + e2; :}
+expr ::= expr:e1 PLUS expr:e2             {: RESULT = new Sum().Add(e1, e2); :}// {: RESULT = e1 + e2; :}
        | expr:e1 MINUS expr:e2            {: RESULT = e1 - e2; :}
        | expr:e1 TIMES expr:e2            {: RESULT = e1 * e2; :}
        | expr:e1 DIVIDE expr:e2            {: RESULT = e1 / e2; :}
