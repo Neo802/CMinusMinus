@@ -42,7 +42,7 @@ terminal SEMI, PLUS, MINUS, UMINUS, TIMES, DIVIDE;
 terminal LPAREN, RPAREN, LBRACE, RBRACE, LSQBRAKE, RSQBRAKE;
 terminal COMMA, AND, OR, ASSIGN, NOTEQUAL, EQUALEQUAL, LESSEQUAL, GREATEQUAL, LESSER, GREATER;
 terminal ANDAND, OROR, IF, ELSE, WHILE, RETURN, CIN, COUT, READ, WRITE;
-terminal TRUE, FALSE, VOID, INT, BOOL;
+terminal TRUE, FALSE, VOID, INT, BOOL, NOT;
 terminal Integer INTLITERAL, NUMBER;
 terminal String STRINGLITERAL;  // Added STRINGLITERAL terminal
 terminal String ID;
@@ -60,7 +60,7 @@ non terminal TreeNode formalsList;
 non terminal TreeNode block;
 non terminal TreeNode decl_list;
 
-non terminal Integer expr;  // used to store evaluated subexpressions
+non terminal TreeNode expr;  // used to store evaluated subexpressions
 
 non terminal TreeNode type;  // Declaration of the 'type' non-terminal
 non terminal TreeNode subscriptExpr; // Declaration of the 'subscriptExpr' non-terminal
@@ -83,123 +83,364 @@ program ::= program:p varDecl:vd				{:
 													p.addChild(vd);													 
 													RESULT = p;
 												:}
-  | program:p fnDecl:fd							{:													
+  		| program:p fnDecl:fd					{:													
 													p.addChild(fd);													 
 													RESULT = p;
 												:}
-  | 											{:
+  		| 										{:
 													parseTreeRoot = new TreeNode("Program");
 													RESULT = parseTreeRoot;  
 												:}
-          ;
+		;
           
-varDecl ::= type:t ID:i SEMI					{:
-													TreeNode result = new TreeNode("VarDecl - " + i);
+varDecl ::= type:t id:i SEMI					{:
+													TreeNode result = new TreeNode("VarDecl");
+													result.addChild(i);
 													result.addChild(t);
 													RESULT = result; 
 											    :}
-          | type:t ID:i LSQBRAKE NUMBER:n RSQBRAKE SEMI		
+          | type:t id:i LSQBRAKE NUMBER:n RSQBRAKE SEMI		
           										{: 
-													System.out.println("varDecl 2"); 
+													TreeNode result = new TreeNode("VarDecl" + "[" + n + "]");
+													result.addChild(i);
+													result.addChild(t);
+													RESULT = result;
 												:}
           ;
           
-type ::= INT											{: System.out.println("type 1(INT value)"); :}
-       | BOOL											{: System.out.println("type 2(BOOL value)"); :}
-       | VOID											{: System.out.println("type 3(VOID value)"); :}
+type ::= INT											{: 
+															RESULT = new TreeNode("TYPE");
+														   	RESULT.addChild(new TreeNode("INT"));
+													 	:}
+       | BOOL											{: 
+															RESULT = new TreeNode("TYPE");
+														   	RESULT.addChild(new TreeNode("BOOL"));
+													 	:}
+       | VOID											{: 
+															RESULT = new TreeNode("TYPE");
+														   	RESULT.addChild(new TreeNode("VOID"));
+													 	:}
        ;
        
-fnDecl ::= type ID parameters block						{: System.out.println("fnDecl 1"); :}
+fnDecl ::= type:t id:i parameters:p block:b				{: 
+															TreeNode result = new TreeNode("Function");
+															result.addChild(t);
+															result.addChild(i);
+															result.addChild(p);
+															result.addChild(b);
+															RESULT = result; 
+														:}
          ;
          
-parameters ::= LPAREN RPAREN							{: System.out.println("parameters 1"); :}
-             | LPAREN formalsList RPAREN				{: System.out.println("parameters 2"); :}
+parameters ::= LPAREN RPAREN							{: 
+															TreeNode result = new TreeNode("No Parameter");
+															RESULT = result; 
+														:}
+             | LPAREN formalsList:fl RPAREN				{: 
+															TreeNode result = new TreeNode("Parameters");
+															result.addChild(fl);
+															RESULT = result; 
+														:}
              ;
              
-formalsList ::= formalDecl								{: System.out.println("formalsList 1"); :}
-              | formalsList COMMA formalDecl			{: System.out.println("formalsList 2"); :}
+formalsList ::= formalDecl:fd							{: 
+															TreeNode result = new TreeNode("Formal Decl");
+															result.addChild(fd);
+															RESULT = result;  
+														:}
+              | formalsList:fl COMMA formalDecl:fd		{: 
+															fl.addChild(fd);
+															RESULT = fl;
+														:}
               ;
               
-formalDecl ::= type ID									{: System.out.println("formalDecl 1"); :}
+formalDecl ::= type:t id:i								{: 
+															TreeNode result = new TreeNode("Formal Declaration");
+															result.addChild(i);
+															result.addChild(t);
+															RESULT = result;
+														:}
              ;
              
-block ::= LBRACE decl_list stmt_list RBRACE				{: System.out.println("block 1"); :}
+block ::= LBRACE decl_list:dl stmt_list:sl RBRACE		{: 
+															TreeNode result = new TreeNode("block");
+															result.addChild(dl);
+															result.addChild(sl);
+															RESULT = result;
+														:}
         ;
         
-decl_list ::= decl_list varDecl							{: System.out.println("decl_list 1"); :}
-            | // empty
+decl_list ::= decl_list:dl varDecl:vd					{: 
+															dl.addChild(vd);
+															RESULT = dl;	 
+														:}
+            | 											{: 
+															TreeNode result = new TreeNode("Declaration List");
+															RESULT = result; 
+														:}
             ;
             
-stmt_list ::= stmt_list stmt							{: System.out.println("stmt_list 1"); :}
-            | // empty
+stmt_list ::= stmt_list:sl stmt:s						{: 
+															sl.addChild(s);
+															RESULT = sl;
+														:}
+            | 											{: 
+															TreeNode result = new TreeNode("Statement List");
+															RESULT = result; 
+														:}
             ;
             
 // Statement grammar 
-stmt ::= CIN READ ID SEMI								{: System.out.println("stmt 1"); :}
-       | CIN READ ID LSQBRAKE expr:e RSQBRAKE SEMI		{: System.out.println("stmt 2 reads " + e); :}
-       | COUT WRITE expr:e SEMI							{: System.out.println("stmt 3 writes " + e); :}
-       | ID ASSIGN expr:e SEMI							{: System.out.println("stmt 4 expr=" + e); :}
-       | subscriptExpr ASSIGN expr:e SEMI				{: System.out.println("stmt 5"); :}
-       | IF LPAREN expr:e RPAREN block					{: System.out.println("stmt 6"); :}
-       | IF LPAREN expr:e RPAREN block ELSE block		{: System.out.println("stmt 7"); :}
-       | WHILE LPAREN expr:e RPAREN block				{: System.out.println("stmt 8"); :}
-       | RETURN expr:e SEMI								{: System.out.println("stmt 9"); :}
-       | RETURN SEMI									{: System.out.println("stmt 10"); :}
-       | fnCallStmt SEMI								{: System.out.println("stmt 11"); :}
+stmt ::= CIN READ id:i SEMI								{: 
+															TreeNode result = new TreeNode("STMT - CIN READ");
+															result.addChild(i);
+															RESULT = result;
+														:}
+       | CIN READ id:i LSQBRAKE expr:e RSQBRAKE SEMI	{: 
+															TreeNode result = new TreeNode("STMT - CIN READ EXPR");
+															result.addChild(i); 
+															result.addChild(e);
+															RESULT = result;
+														:}
+       | COUT WRITE expr:e SEMI							{: 
+															TreeNode result = new TreeNode("STMT - COUT WRITE");
+															result.addChild(e);
+															RESULT = result;
+														:}
+       | id:i ASSIGN expr:e SEMI						{: 
+															//TreeNode result = new TreeNode("STMT - ASSIGN");
+															//result.addChild(i); 
+															i.addChild(e);
+															RESULT = i;
+														:}
+       | subscriptExpr:se ASSIGN expr:e SEMI			{: 
+															se.addChild(e); 
+															RESULT = se;
+														:}
+       | IF LPAREN expr:e RPAREN block:b				{: 
+															TreeNode result = new TreeNode("STMT - IF");
+															result.addChild(e); 
+															result.addChild(b);
+															RESULT = result;
+														:}
+       | IF LPAREN expr:e RPAREN block:b ELSE block:b2	{: 
+															TreeNode result = new TreeNode("STMT - IF ELSE");
+															result.addChild(e); 
+															result.addChild(b);
+															result.addChild(b2);
+															RESULT = result;
+														:}
+       | WHILE LPAREN expr:e RPAREN block:b				{: 
+															TreeNode result = new TreeNode("STMT - WHILE");
+															result.addChild(e); 
+															result.addChild(b);
+															RESULT = result;
+														:}
+       | RETURN expr:e SEMI								{: 
+															TreeNode result = new TreeNode("STMT - RETURN");
+															result.addChild(e); 
+															RESULT = result;
+														:}
+       | RETURN SEMI									{: 
+															TreeNode result = new TreeNode("STMT - RETURN NIL");
+															RESULT = result;
+														:}
+       | fnCallStmt:fcs SEMI							{: 
+															RESULT = fcs;
+														:}
        ;            
 
-expr_list ::= expr_list expr:e SEMI         {: System.out.println(e); :}
-            | expr:e SEMI                   {: System.out.println(e); :}
+expr_list ::= expr_list:el expr:e SEMI      {: 
+												el.addChild(e);
+												RESULT = el; 
+											:}
+            | expr:e SEMI                   {: 
+												TreeNode result = new TreeNode("Expression List");
+												result.addChild(e);
+												RESULT = result;
+											:}
             ;
             
 /* Expression grammar */
-expr ::= expr:e1 PLUS expr:e2             {: RESULT = new Sum().Add(e1, e2); :}// {: RESULT = e1 + e2; :}
-       | expr:e1 MINUS expr:e2            {: RESULT = e1 - e2; :}
-       | expr:e1 TIMES expr:e2            {: RESULT = e1 * e2; :}
-       | expr:e1 DIVIDE expr:e2            {: RESULT = e1 / e2; :}
-       | expr:e1 AND expr:e2              {: RESULT = e1 & e2; :}
-       | expr:e1 OR expr:e2               {: RESULT = e1 | e2; :}
-       | expr:e1 ANDAND expr:e2           {: RESULT = (e1 != 0 && e2 != 0) ? 1 : 0; :}
-       | expr:e1 OROR expr:e2             {: RESULT = (e1 != 0 || e2 != 0) ? 1 : 0; :}
-       | expr:e1 EQUALEQUAL expr:e2       {: RESULT = (e1 == e2) ? 1 : 0; :}
-       | expr:e1 NOTEQUAL expr:e2         {: RESULT = (e1 != e2) ? 1 : 0; :}
-       | expr:e1 LESSEQUAL expr:e2        {: RESULT = (e1 <= e2) ? 1 : 0; :}
-       | expr:e1 GREATEQUAL expr:e2       {: RESULT = (e1 >= e2) ? 1 : 0; :}
-       | expr:e1 LESSER expr:e2           {: RESULT = (e1 < e2) ? 1 : 0; :}
-       | expr:e1 GREATER expr:e2           {: RESULT = (e1 > e2) ? 1 : 0; :}
-       | MINUS expr:e                     {: RESULT = -e; :} %prec UMINUS
-       | LPAREN expr:e RPAREN             {: RESULT = e; :}
-       | NUMBER:n                        {: RESULT = n; :}  // ((Integer)n).intValue(); Explicit cast to Integer
-       | TRUE                            {: RESULT = 1; :}
-       | FALSE                           {: RESULT = 0; :}
-       | ID								{: RESULT = 0;	:}
-       ;
+expr ::= expr:e1 PLUS expr:e2             	{: 
+												TreeNode result = new TreeNode("SUM");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = new Sum().Add(e1, e2); :}// {: RESULT = e1 + e2; :}
+       | expr:e1 MINUS expr:e2            	{: 
+												TreeNode result = new TreeNode("DIFFERENCE");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = e1 - e2; :}
+       | expr:e1 TIMES expr:e2            	{: 
+												TreeNode result = new TreeNode("TIMES");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = e1 * e2; :}
+       | expr:e1 DIVIDE expr:e2            	{: 
+												TreeNode result = new TreeNode("DIVIDE");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = e1 / e2; :}
+       | NOT expr:e                     	{:	
+												TreeNode result = new TreeNode("NOT");
+												result.addChild(e);
+												RESULT = result;
+											:}
+       | expr:e1 ANDAND expr:e2           	{: 
+												TreeNode result = new TreeNode("AND AND");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 != 0 && e2 != 0) ? 1 : 0; :}
+       | expr:e1 OROR expr:e2             	{: 
+												TreeNode result = new TreeNode("OR OR");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 != 0 || e2 != 0) ? 1 : 0; :}
+       | expr:e1 EQUALEQUAL expr:e2       	{: 
+												TreeNode result = new TreeNode("Equality");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 == e2) ? 1 : 0; :}
+       | expr:e1 NOTEQUAL expr:e2         	{: 
+												TreeNode result = new TreeNode("Not Equal");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 != e2) ? 1 : 0; :}
+       | expr:e1 LESSER expr:e2           	{: 
+												TreeNode result = new TreeNode("Lesser");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 < e2) ? 1 : 0; :}
+       | expr:e1 GREATER expr:e2           	{: 
+												TreeNode result = new TreeNode("Greater");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 > e2) ? 1 : 0; :}
+       | expr:e1 LESSEQUAL expr:e2        	{: 
+												TreeNode result = new TreeNode("Less Equal");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 <= e2) ? 1 : 0; :}
+       | expr:e1 GREATEQUAL expr:e2       	{: 
+												TreeNode result = new TreeNode("Greater Equal");
+												result.addChild(e1);
+												result.addChild(e2);
+												RESULT = result;
+											:} //{: RESULT = (e1 >= e2) ? 1 : 0; :}
+       | MINUS atom:a                     	{:	
+												TreeNode result = new TreeNode("NEGATIVE");
+												result.addChild(a);
+												RESULT = result;
+											:} //{: RESULT = -e; :} %prec UMINUS
+       | atom:a                     		{:	
+												TreeNode result = new TreeNode("ATOM");
+												result.addChild(a);
+												RESULT = result;
+											:}
+		;
              
-/* Subscript and function call grammar */
-atom		::=	INTLITERAL							{: System.out.println("atom 1"); :}
-			|	STRINGLITERAL						{: System.out.println("atom 2"); :}
-			|	TRUE								{: System.out.println("atom 3"); :}
-			|	FALSE								{: System.out.println("atom 4"); :}
-			|	LPAREN	actualList	RPAREN			{: System.out.println("atom 5"); :}
-			|	subscriptExpr						{: System.out.println("atom 6"); :}
-			|	id									{: System.out.println("atom 7"); :}
+/* Function call grammar */
+atom		::=	INTLITERAL							{: 
+															TreeNode result = new TreeNode("ATOM Int");
+															RESULT = result;
+													:}
+			|	STRINGLITERAL						{: 
+															TreeNode result = new TreeNode("ATOM String");
+															RESULT = result;
+													:}
+			|	TRUE								{: 
+															TreeNode result = new TreeNode("ATOM True");
+															RESULT = result;
+													:}
+			|	FALSE								{: 
+															TreeNode result = new TreeNode("ATOM False");
+															RESULT = result;
+													:}
+			|	LPAREN	expr:e	RPAREN				{: 
+															TreeNode result = new TreeNode("ATOM Expression");
+															result.addChild(e);
+															RESULT = result;
+													:}
+			|	fnCallExpr:fne						{: 
+															TreeNode result = new TreeNode("ATOM Function Call");
+															result.addChild(fne);
+															RESULT = result;
+													:}
+			|	subscriptExpr:se					{: 
+															TreeNode result = new TreeNode("ATOM Subscript");
+															result.addChild(se);
+															RESULT = result;
+													:}
+			|	id:i								{: 
+															TreeNode result = new TreeNode("ATOM ID");
+															result.addChild(i);
+															RESULT = result;
+													:}
             ;
             
-fnCallExpr ::= ID LPAREN RPAREN						{: System.out.println("fnCallExpr 1"); :}
-             | ID LPAREN actualList RPAREN			{: System.out.println("fnCallExpr 2"); :}
+fnCallExpr ::= id:i LPAREN RPAREN					{:  
+															TreeNode result = new TreeNode("Function Call Expr");
+															result.addChild(i);
+															RESULT = result;
+													:}
+             | id:i LPAREN actualList:al RPAREN		{:  
+															TreeNode result = new TreeNode("Function Call Expr with List");
+															result.addChild(i);
+															result.addChild(al);
+															RESULT = result;
+													:}
              ;
              
-fnCallStmt ::= ID LPAREN RPAREN						{: System.out.println("fnCallStmt 1"); :}
-             | ID LPAREN actualList RPAREN			{: System.out.println("fnCallStmt 2"); :}
+fnCallStmt ::= id:i LPAREN RPAREN					{:  
+															TreeNode result = new TreeNode("Function Call Statement");
+															result.addChild(i);
+															RESULT = result;
+													:}
+             | id:i LPAREN actualList:al RPAREN		{:  
+															TreeNode result = new TreeNode("Function Call Statement with List");
+															result.addChild(i);
+															result.addChild(al);
+															RESULT = result;
+													:}
              ;
              
-actualList ::= expr									{: System.out.println("actualList 1"); :}
-             | actualList COMMA expr				{: System.out.println("actualList 2"); :}
+actualList ::= expr:e								{: 
+															TreeNode result = new TreeNode("Actual List");
+															result.addChild(e);
+															RESULT = result;
+													:}
+             | actualList:al COMMA expr:e			{: 
+															TreeNode result = new TreeNode("Actual List");
+															result.addChild(al);
+															result.addChild(e);
+															RESULT = result;
+													:}
              ;
              
-subscriptExpr ::= ID LSQBRAKE expr RSQBRAKE			{: System.out.println("subscriptExpr 1"); :}
+subscriptExpr ::= id:i LSQBRAKE expr:e RSQBRAKE		{: 
+															TreeNode result = new TreeNode("Subscript");
+															result.addChild(i);
+															result.addChild(e);
+															RESULT = result;
+													:}
                 ;
                 
-id			::= ID									{: System.out.println("id 1"); :}
+id			::= ID:i								{: 
+															TreeNode result = new TreeNode("ID");
+															result.addChild(new TreeNode(i));
+															RESULT = result;
+													:}
 			;
        

@@ -3,15 +3,18 @@ package cup.example;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import java_cup.runtime.*;
+import classes.*;
 
 class Driver {
 
 	public static void main(String[] args) throws Exception {
 		Parser parser = new Parser();
-		parser.debug_parse();
-		//parser.parse();
+		parser.parse();
+		//parser.debug_parse();
+		TreeNode root = parser.getParseTree();
+		TreeNodePrinter treePrinter = new TreeNodePrinter(root);
+		treePrinter.print();
 		
 		/*
 		ComplexSymbolFactory f = new ComplexSymbolFactory();

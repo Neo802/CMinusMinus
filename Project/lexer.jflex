@@ -64,6 +64,7 @@ Identifier = [a-zA-Z_][a-zA-Z0-9_]*
 StringChar = ([ \t\f]|[ \n\t]|\w)
 Quotes = \"
 StringLiteral = {Quotes}([^\"\\\n]|\\[nrtbfv\\\"']|\\\\)*{Quotes}
+IntegerLiteral = [0-9]+
 
 //{Quotes}[a-zA-Z0-9_ &!#:\"\'\/\\]*{Quotes} // v0.13
 
@@ -151,6 +152,7 @@ CommentContent = ( [^*] | \*+[^*/] )*
   ">>"       { return symbolFactory.newSymbol("READ", sym.READ); }
   
   {StringLiteral} { return symbol("STRINGLITERAL", sym.STRINGLITERAL, yytext()); }
+  {IntegerLiteral} { return symbolFactory.newSymbol("INTLITERAL", sym.INTLITERAL, Integer.parseInt(yytext())); }
   {Number}     { return symbolFactory.newSymbol("NUMBER", NUMBER, Integer.parseInt(yytext())); }
   {Identifier} { return symbol("ID", sym.ID, yytext()); }
   
