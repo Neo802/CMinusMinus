@@ -12,8 +12,12 @@ int main(){
 	sum = a + b;
 	multiply = a * b;
 	
-	while (i){
+	while (i < 10){
 		i = i + 1;
+	}
+	
+	if (i >= 10){
+		cout << "HERE!";
 	}
 	
 	return 0;

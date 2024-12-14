@@ -5,8 +5,8 @@
 
 package cup.example;
 
-import classes.Sum;
-import classes.TreeNode;
+import classes.*;
+import table.*;
 
 import java_cup.runtime.*;
 import cup.example.Lexer;
@@ -16,10 +16,24 @@ import java.io.FileInputStream;
 
 parser code {:
   	protected Lexer lexer;
-  	protected TreeNode parseTreeRoot = null;
-	public TreeNode getParseTree(){
-		return parseTreeRoot;
-	}
+ 	protected Tree syntaxTree = new Tree(); 
+	
+ 	public Tree getSyntaxTree()
+  	{
+		return syntaxTree;
+  	}
+  	protected TreeNode createDeclarationNode(TreeNode declaration) { throw new UnsupportedOperationException(); }
+ 	protected TreeNode createFunctionDeclarationNode(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) { throw new UnsupportedOperationException(); }
+  	protected TreeNode createTypeSpecifier(String typeName) { throw new UnsupportedOperationException(); }
+	protected TreeNode createListNode(String listName, TreeNode firstChild) { throw new UnsupportedOperationException(); }
+	protected TreeNode createVarDeclaration(TreeNode typeSpecifier, TreeNode identifierName, Integer value ) { throw new UnsupportedOperationException(); }
+	protected TreeNode createIfStatement(String identifier, TreeNode ifInstructions, TreeNode elseInstructions) { throw new UnsupportedOperationException(); }
+	protected TreeNode createParameter(TreeNode child) { throw new UnsupportedOperationException(); }
+	protected TreeNode createFormalsList(TreeNode existingNode, TreeNode formalDecl) { throw new UnsupportedOperationException(); }
+	protected TreeNode createFormalDecl(TreeNode identifierName, TreeNode typeName) { throw new UnsupportedOperationException(); }
+	protected TreeNode createBlock(TreeNode declList, TreeNode stmtList) { throw new UnsupportedOperationException(); }
+
+
 :}
 
 /* define how to connect to the scanner! */
@@ -79,86 +93,62 @@ precedence left TIMES, DIVIDE;
 precedence left UMINUS;
         
 // The grammar rules
-program ::= program:p varDecl:vd				{: 													
-													p.addChild(vd);													 
-													RESULT = p;
+program ::= program:p varDecl:vd				{: 
+													p.addChild(vd); 
+													RESULT = p; 
 												:}
-  		| program:p fnDecl:fd					{:													
-													p.addChild(fd);													 
-													RESULT = p;
+  		| program:p fnDecl:fd					{:
+													p.addChild(fd); 
+													RESULT = p; 
 												:}
   		| 										{:
-													parseTreeRoot = new TreeNode("Program");
-													RESULT = parseTreeRoot;  
+													RESULT = syntaxTree.create("Program");
 												:}
 		;
           
 varDecl ::= type:t id:i SEMI					{:
-													TreeNode result = new TreeNode("VarDecl");
-													result.addChild(i);
-													result.addChild(t);
-													RESULT = result; 
+													RESULT = createVarDeclaration(t, i, 0);
 											    :}
           | type:t id:i LSQBRAKE NUMBER:n RSQBRAKE SEMI		
           										{: 
-													TreeNode result = new TreeNode("VarDecl" + "[" + n + "]");
-													result.addChild(i);
-													result.addChild(t);
-													RESULT = result;
+													RESULT = createVarDeclaration(t, i, n);
 												:}
           ;
           
 type ::= INT											{: 
-															RESULT = new TreeNode("TYPE");
-														   	RESULT.addChild(new TreeNode("INT"));
+															RESULT = createTypeSpecifier("INT");
 													 	:}
        | BOOL											{: 
-															RESULT = new TreeNode("TYPE");
-														   	RESULT.addChild(new TreeNode("BOOL"));
+															RESULT = createTypeSpecifier("BOOL");
 													 	:}
        | VOID											{: 
-															RESULT = new TreeNode("TYPE");
-														   	RESULT.addChild(new TreeNode("VOID"));
+															RESULT = createTypeSpecifier("VOID");
 													 	:}
        ;
        
 fnDecl ::= type:t id:i parameters:p block:b				{: 
-															TreeNode result = new TreeNode("Function");
-															result.addChild(t);
-															result.addChild(i);
-															result.addChild(p);
-															result.addChild(b);
-															RESULT = result; 
+															RESULT = createFunctionDeclarationNode(t, i, p, b);
 														:}
          ;
          
 parameters ::= LPAREN RPAREN							{: 
-															TreeNode result = new TreeNode("No Parameter");
-															RESULT = result; 
+															RESULT = createParameter(null);
 														:}
              | LPAREN formalsList:fl RPAREN				{: 
-															TreeNode result = new TreeNode("Parameters");
-															result.addChild(fl);
-															RESULT = result; 
+															RESULT = createParameter(fl);
 														:}
              ;
              
 formalsList ::= formalDecl:fd							{: 
-															TreeNode result = new TreeNode("Formal Decl");
-															result.addChild(fd);
-															RESULT = result;  
+															RESULT = createFormalsList(null, fd);
 														:}
               | formalsList:fl COMMA formalDecl:fd		{: 
-															fl.addChild(fd);
-															RESULT = fl;
+															RESULT = createFormalsList(fl, fd);
 														:}
               ;
               
 formalDecl ::= type:t id:i								{: 
-															TreeNode result = new TreeNode("Formal Declaration");
-															result.addChild(i);
-															result.addChild(t);
-															RESULT = result;
+															RESULT = createFormalDecl(i, t);
 														:}
              ;
              
@@ -208,8 +198,6 @@ stmt ::= CIN READ id:i SEMI								{:
 															RESULT = result;
 														:}
        | id:i ASSIGN expr:e SEMI						{: 
-															//TreeNode result = new TreeNode("STMT - ASSIGN");
-															//result.addChild(i); 
 															i.addChild(e);
 															RESULT = i;
 														:}

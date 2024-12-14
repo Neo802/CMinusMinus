@@ -156,8 +156,7 @@ CommentContent = ( [^*] | \*+[^*/] )*
   {Number}     { return symbolFactory.newSymbol("NUMBER", NUMBER, Integer.parseInt(yytext())); }
   {Identifier} { return symbol("ID", sym.ID, yytext()); }
   
-/* Error handling for unrecognized characters */
-
+	/* Error handling for unrecognized characters */
     .            { emit_warning("Unrecognized character: " + yytext()); }
 
 }
