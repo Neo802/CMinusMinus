@@ -7,32 +7,44 @@ package cup.example;
 
 import classes.*;
 import table.*;
+import cup.example.Lexer;
 
 import java_cup.runtime.*;
-import cup.example.Lexer;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 
 parser code {:
   	protected Lexer lexer;
- 	protected Tree syntaxTree = new Tree(); 
+ 	protected Tree syntaxTree = new Tree();
 	
  	public Tree getSyntaxTree()
   	{
 		return syntaxTree;
   	}
-  	protected TreeNode createDeclarationNode(TreeNode declaration) { throw new UnsupportedOperationException(); }
- 	protected TreeNode createFunctionDeclarationNode(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) { throw new UnsupportedOperationException(); }
-  	protected TreeNode createTypeSpecifier(String typeName) { throw new UnsupportedOperationException(); }
-	protected TreeNode createListNode(String listName, TreeNode firstChild) { throw new UnsupportedOperationException(); }
+  	
+	protected TreeNode createFunctionDeclarationNode(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) { throw new UnsupportedOperationException(); }
 	protected TreeNode createVarDeclaration(TreeNode typeSpecifier, TreeNode identifierName, Integer value ) { throw new UnsupportedOperationException(); }
-	protected TreeNode createIfStatement(String identifier, TreeNode ifInstructions, TreeNode elseInstructions) { throw new UnsupportedOperationException(); }
+  	protected TreeNode createTypeSpecifier(String typeName) { throw new UnsupportedOperationException(); }
+	protected TreeNode createIfStatement(TreeNode expression, TreeNode ifInstructions, TreeNode elseInstructions) { throw new UnsupportedOperationException(); }
 	protected TreeNode createParameter(TreeNode child) { throw new UnsupportedOperationException(); }
 	protected TreeNode createFormalsList(TreeNode existingNode, TreeNode formalDecl) { throw new UnsupportedOperationException(); }
 	protected TreeNode createFormalDecl(TreeNode identifierName, TreeNode typeName) { throw new UnsupportedOperationException(); }
 	protected TreeNode createBlock(TreeNode declList, TreeNode stmtList) { throw new UnsupportedOperationException(); }
-
+	protected TreeNode createDeclList(TreeNode declList, TreeNode varDecl) { throw new UnsupportedOperationException(); }
+	protected TreeNode createStmtList(TreeNode stmtList, TreeNode stmt) { throw new UnsupportedOperationException(); }
+	protected TreeNode sumOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode diffOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode multiOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode divisionOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode andOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode orOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode equalityOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode notequalOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode lesserOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode greaterOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode lessEqOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
+	protected TreeNode greatEqOp(TreeNode e1, TreeNode e2) { throw new UnsupportedOperationException(); }
 
 :}
 
@@ -153,30 +165,23 @@ formalDecl ::= type:t id:i								{:
              ;
              
 block ::= LBRACE decl_list:dl stmt_list:sl RBRACE		{: 
-															TreeNode result = new TreeNode("block");
-															result.addChild(dl);
-															result.addChild(sl);
-															RESULT = result;
+															RESULT = createBlock(dl, sl);
 														:}
         ;
         
 decl_list ::= decl_list:dl varDecl:vd					{: 
-															dl.addChild(vd);
-															RESULT = dl;	 
+															RESULT = createDeclList(dl, vd);
 														:}
             | 											{: 
-															TreeNode result = new TreeNode("Declaration List");
-															RESULT = result; 
+															RESULT = createDeclList(null, null);
 														:}
             ;
             
 stmt_list ::= stmt_list:sl stmt:s						{: 
-															sl.addChild(s);
-															RESULT = sl;
+															RESULT = createStmtList(sl, s);
 														:}
             | 											{: 
-															TreeNode result = new TreeNode("Statement List");
-															RESULT = result; 
+															RESULT = createStmtList(null, null);
 														:}
             ;
             
@@ -206,17 +211,10 @@ stmt ::= CIN READ id:i SEMI								{:
 															RESULT = se;
 														:}
        | IF LPAREN expr:e RPAREN block:b				{: 
-															TreeNode result = new TreeNode("STMT - IF");
-															result.addChild(e); 
-															result.addChild(b);
-															RESULT = result;
+															RESULT = createIfStatement(e, b, null);
 														:}
        | IF LPAREN expr:e RPAREN block:b ELSE block:b2	{: 
-															TreeNode result = new TreeNode("STMT - IF ELSE");
-															result.addChild(e); 
-															result.addChild(b);
-															result.addChild(b2);
-															RESULT = result;
+															RESULT = createIfStatement(e, b, b2);
 														:}
        | WHILE LPAREN expr:e RPAREN block:b				{: 
 															TreeNode result = new TreeNode("STMT - WHILE");
@@ -251,28 +249,16 @@ expr_list ::= expr_list:el expr:e SEMI      {:
             
 /* Expression grammar */
 expr ::= expr:e1 PLUS expr:e2             	{: 
-												TreeNode result = new TreeNode("SUM");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = sumOp(e1, e2);
 											:} //{: RESULT = new Sum().Add(e1, e2); :}// {: RESULT = e1 + e2; :}
        | expr:e1 MINUS expr:e2            	{: 
-												TreeNode result = new TreeNode("DIFFERENCE");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = diffOp(e1, e2);
 											:} //{: RESULT = e1 - e2; :}
        | expr:e1 TIMES expr:e2            	{: 
-												TreeNode result = new TreeNode("TIMES");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = multiOp(e1, e2);
 											:} //{: RESULT = e1 * e2; :}
        | expr:e1 DIVIDE expr:e2            	{: 
-												TreeNode result = new TreeNode("DIVIDE");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = divisionOp(e1, e2);
 											:} //{: RESULT = e1 / e2; :}
        | NOT expr:e                     	{:	
 												TreeNode result = new TreeNode("NOT");
@@ -280,52 +266,28 @@ expr ::= expr:e1 PLUS expr:e2             	{:
 												RESULT = result;
 											:}
        | expr:e1 ANDAND expr:e2           	{: 
-												TreeNode result = new TreeNode("AND AND");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = andOp(e1, e2);
 											:} //{: RESULT = (e1 != 0 && e2 != 0) ? 1 : 0; :}
        | expr:e1 OROR expr:e2             	{: 
-												TreeNode result = new TreeNode("OR OR");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = orOp(e1, e2);
 											:} //{: RESULT = (e1 != 0 || e2 != 0) ? 1 : 0; :}
        | expr:e1 EQUALEQUAL expr:e2       	{: 
-												TreeNode result = new TreeNode("Equality");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = equalityOp(e1, e2);
 											:} //{: RESULT = (e1 == e2) ? 1 : 0; :}
        | expr:e1 NOTEQUAL expr:e2         	{: 
-												TreeNode result = new TreeNode("Not Equal");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = notequalOp(e1, e2);
 											:} //{: RESULT = (e1 != e2) ? 1 : 0; :}
        | expr:e1 LESSER expr:e2           	{: 
-												TreeNode result = new TreeNode("Lesser");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = lesserOp(e1, e2);
 											:} //{: RESULT = (e1 < e2) ? 1 : 0; :}
        | expr:e1 GREATER expr:e2           	{: 
-												TreeNode result = new TreeNode("Greater");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = greaterOp(e1, e2);
 											:} //{: RESULT = (e1 > e2) ? 1 : 0; :}
        | expr:e1 LESSEQUAL expr:e2        	{: 
-												TreeNode result = new TreeNode("Less Equal");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = lessEqOp(e1, e2);
 											:} //{: RESULT = (e1 <= e2) ? 1 : 0; :}
        | expr:e1 GREATEQUAL expr:e2       	{: 
-												TreeNode result = new TreeNode("Greater Equal");
-												result.addChild(e1);
-												result.addChild(e2);
-												RESULT = result;
+												RESULT = greatEqOp(e1, e2);
 											:} //{: RESULT = (e1 >= e2) ? 1 : 0; :}
        | MINUS atom:a                     	{:	
 												TreeNode result = new TreeNode("NEGATIVE");
@@ -427,7 +389,7 @@ subscriptExpr ::= id:i LSQBRAKE expr:e RSQBRAKE		{:
                 
 id			::= ID:i								{: 
 															TreeNode result = new TreeNode("ID");
-															result.addChild(new TreeNode(i));
+															result.addChild(i);
 															RESULT = result;
 													:}
 			;

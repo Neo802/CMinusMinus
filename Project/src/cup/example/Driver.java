@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java_cup.runtime.*;
-import table.SymbolsTable;
+import table.*;
 import classes.*;
 
 class Driver {

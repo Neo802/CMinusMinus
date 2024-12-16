@@ -3,8 +3,7 @@ package table;
 import java.util.HashMap;
 import java.util.Map;
 
-import classes.Tree;
-import classes.TreeNode;
+import classes.*;
 
 public class SymbolsTable {
 	
@@ -82,7 +81,4 @@ public class SymbolsTable {
 		}		
 	}
 	
-	
-	
-
 }

@@ -1,3 +1,11 @@
+int add(int a,int b){
+	return a + b;
+}
+
+int mul(int a,int b){
+	return a * b;
+}
+
 int main(){
     int a;
 	int sum;
@@ -9,8 +17,8 @@ int main(){
 	b = 23;
 	i = 0;
 	
-	sum = a + b;
-	multiply = a * b;
+	sum = add(a, b);
+	multiply = mul(a, b);
 	
 	while (i < 10){
 		i = i + 1;
