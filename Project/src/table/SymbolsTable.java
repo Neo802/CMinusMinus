@@ -21,7 +21,7 @@ public class SymbolsTable {
 			details.symbolName = node.getExtraData();
 			if (node.getChildren().length > 0)
 			{
-				details.dataType = node.getChildren()[0].getExtraData();
+				details.dataType = node.getChildren()[0].getChildren()[0].getData();
 			}			
 			details.symbolScope = scope;
 			details.symbolType = SymbolType.Variable;
@@ -35,7 +35,7 @@ public class SymbolsTable {
 			details.symbolName = node.getExtraData();
 			if (node.getChildren().length > 0)
 			{
-				details.dataType = node.getChildren()[0].getExtraData();
+				details.dataType = node.getChildren()[0].getChildren()[0].getData();
 			}			
 			details.symbolScope = scope;
 			details.symbolType = SymbolType.Function;

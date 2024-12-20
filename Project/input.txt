@@ -6,7 +6,7 @@ int mul(int a,int b){
 	return a * b;
 }
 
-int main(){
+void main(){
     int a;
 	int sum;
 	int multiply;
@@ -27,6 +27,4 @@ int main(){
 	if (i >= 10){
 		cout << "HERE!";
 	}
-	
-	return 0;
 }

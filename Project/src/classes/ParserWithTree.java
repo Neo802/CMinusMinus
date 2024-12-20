@@ -9,7 +9,7 @@ public class ParserWithTree extends Parser{
 		super();
 	}
 	
- 	protected TreeNode createFunctionDeclarationNode(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) 	
+ 	protected TreeNode createFunctionDeclaration(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) 	
  	{ 
  		TreeNode newNode = new TreeNode("FunctionDecl", identifierName.getChildren()[0].getData().toString());
  		newNode.addChild(typeSpecifier);

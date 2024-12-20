@@ -23,7 +23,7 @@ parser code {:
 		return syntaxTree;
   	}
   	
-	protected TreeNode createFunctionDeclarationNode(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) { throw new UnsupportedOperationException(); }
+	protected TreeNode createFunctionDeclaration(TreeNode typeSpecifier, TreeNode identifierName, TreeNode paramsList, TreeNode block) { throw new UnsupportedOperationException(); }
 	protected TreeNode createVarDeclaration(TreeNode typeSpecifier, TreeNode identifierName, Integer value ) { throw new UnsupportedOperationException(); }
   	protected TreeNode createTypeSpecifier(String typeName) { throw new UnsupportedOperationException(); }
 	protected TreeNode createIfStatement(TreeNode expression, TreeNode ifInstructions, TreeNode elseInstructions) { throw new UnsupportedOperationException(); }
@@ -139,7 +139,7 @@ type ::= INT											{:
        ;
        
 fnDecl ::= type:t id:i parameters:p block:b				{: 
-															RESULT = createFunctionDeclarationNode(t, i, p, b);
+															RESULT = createFunctionDeclaration(t, i, p, b);
 														:}
          ;
          
