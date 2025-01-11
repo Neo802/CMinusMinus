@@ -17,7 +17,6 @@ void main(){
 	int multiply;
 	int i;
 	
-	
 	a = 13;
 	b = 23;
 	i = 0;
