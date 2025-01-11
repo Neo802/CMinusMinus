@@ -1,4 +1,9 @@
+int ax;
+int ay;
+
 int add(int a,int b){
+	int xa;
+	int xb;
 	return a + b;
 }
 
