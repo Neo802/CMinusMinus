@@ -23,13 +23,18 @@ public class SymbolsTable {
 				var identifiersNode = currentChildren[1];
 				var variableNames = identifiersNode.getChildren();
 				
-
 				for (int i = 0; i < variableNames.length; i++) {
 				    String symbolName = variableNames[i].getData();
 				    
 				    if (table.containsKey(symbolName)){
-				        System.err.println("Error: Variable '" + symbolName + "' is declared multiple times in the same scope.");
-				        System.exit(1);
+		                // Get the existing symbol details
+		                SymbolDetails existingDetails = table.get(symbolName);
+
+		                // Check if the context is the same
+		                if (existingDetails.contextName.equals(currentContext)) {
+					        System.err.println("Error: Variable '" + symbolName + "' is declared multiple times in the same scope, in function: " + currentContext);
+					        System.exit(1);
+		                }
 				    }
 				    else {
 				    	SymbolDetails details = new SymbolDetails();
@@ -79,7 +84,7 @@ public class SymbolsTable {
 							SymbolDetails details1 = new SymbolDetails();
 							details1.contextName = funcName;
 							details1.symbolName = "Parameter " + symbolName + " from Function " + funcName;
-							details1.dataType = currentChildren[0].getData();
+							details1.dataType = paramsNames[i].getChildren()[1].getChildren()[0].getData();
 							details1.symbolScope = IdentifierScope.Local;
 							details1.symbolType = SymbolType.Variable;
 							table.put(details1.symbolName, details1);	

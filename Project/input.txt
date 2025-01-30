@@ -1,13 +1,14 @@
 int ax;
 int ay;
+int atest;
 
-int add(int a,int b){
+int add(int a, int b, int b){
 	int xa;
 	int xb;
 	return a + b;
 }
 
-int mul(int a,int b){
+int mul(int a, int b){
 	return a * b;
 }
 
@@ -16,6 +17,8 @@ void main(){
 	int sum;
 	int multiply;
 	int i;
+	
+	bool success;
 	
 	a = 13;
 	b = 23;
